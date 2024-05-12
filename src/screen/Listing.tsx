@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react';
 import {
   Button,
   Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,13 +11,15 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {setRecipeTypeList} from '../reducer/recipe.reducer';
+import {setRecipeDetail, setRecipeTypeList} from '../reducer/recipe.reducer';
 import {RootState} from '../reducer';
 import {recipeListing} from '../recipe.mock';
 import React from 'react';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {backgroundStyle} from '../../App';
 
 const Listing = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<any>>();
   const dispatch = useDispatch();
   const recipeTypeList = useSelector(
     (state: RootState) => state.recipe.recipeTypeList,
@@ -50,7 +53,7 @@ const Listing = () => {
   }, []);
 
   return (
-    <>
+    <SafeAreaView style={backgroundStyle()}>
       <View style={styles.filterContainer}>
         {recipeTypeList.map((item, key) => {
           return (
@@ -71,22 +74,26 @@ const Listing = () => {
           title="Clear"
           onPress={() => setRecipeList(recipeFullListing)}
         />
-        <Button title="+" onPress={() => navigation.navigate('AddRecipe')} />
+        <Button title="+" onPress={() => navigation.navigate('RecipeForm')} />
       </View>
       <ScrollView>
         {recipeList.map((item, key) => {
           return (
-            <View style={styles.listingContainer} key={key}>
+            <TouchableOpacity
+              key={key}
+              style={styles.listingContainer}
+              onPress={() => {
+                navigation.navigate('Detail');
+                dispatch(setRecipeDetail(item));
+              }}>
               <Image source={{uri: item.imageURI}} style={styles.image} />
-              <Text>{item.recipeTypeName}</Text>
-              <Text>{item.ingredients}</Text>
-              <Text>{item.step}</Text>
+              <Text>{item.recipeName}</Text>
               <View style={styles.horizontalLine} />
-            </View>
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
